@@ -1,3 +1,6 @@
+[toolchain]
+anchor_version = "0.30.1"
+
 [features]
 seeds = false
 skip-lint = false
@@ -9,16 +12,16 @@ nft_vault       = "FKAZg2HtpsBbT2gvZcBN36bMo3XVnLLUBRncfDRsD26w"
 nft_mint_bridge = "2f9ZmuAt6Aaj62JFdA4VXb71uYUAGat8p7rg7T2VXz5p"
 
 [programs.devnet]
-lock_vault      = "FEb6GdiTHqUvpxui8SZnNLW6NeDNbs3Xhb7vg24UbPtT"
-mint_bridge     = "Hs7LHuXuAGcXaGtpsuUtHQjxAnZwRGdcqh937xFSPGNv"
-nft_vault       = "FKAZg2HtpsBbT2gvZcBN36bMo3XVnLLUBRncfDRsD26w"
-nft_mint_bridge = "2f9ZmuAt6Aaj62JFdA4VXb71uYUAGat8p7rg7T2VXz5p"
+lock_vault      = "CpXR6zwh8MpnkmKYM84gjtA252HeYGhPhNo3ESrfpQfB"
+mint_bridge     = "E1qBzEeYb7ieCAAWjD9xcE2DFFYfg9gnD4vq2AtynEaV"
+nft_vault       = "Pj5B1BPCVjArsyvdytUYnFhXQNETbPmzfiMrajhZ4JK"
+nft_mint_bridge = "GJE47g5o929p4GUG738r5o2EAmj1N82j1ZajmVjPjn46"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "https://solana-devnet.g.alchemy.com/v2/Bzb9gqOW7RkhvMCvlmmMs"
+cluster = "https://solana-devnet.g.alchemy.com/v2/LhEJ1-EqWW2QoZQDORBZz"
 wallet = "~/.config/solana/id.json"
 
 [scripts]

@@ -104,10 +104,10 @@ echo -e "\n${BOLD}[1/5] PostgreSQL${RESET}"
 if port_open 5432; then
   ok "PostgreSQL running on :5432"
 else
-  info "Starting PostgreSQL..."
-  brew services start postgresql@16 2>/dev/null || brew services start postgresql 2>/dev/null
-  sleep 2
-  if port_open 5432; then ok "PostgreSQL started"; else fail "PostgreSQL failed to start"; exit 1; fi
+    info "Starting PostgreSQL..."
+sudo systemctl start postgresql 2>/dev/null
+sleep 2
+if port_open 5432; then ok "PostgreSQL started"; else fail "PostgreSQL failed to start"; exit 1; fi
 fi
 
 # ── 2. Phoenix (kill existing, migrate, restart) ──────────────────────────────

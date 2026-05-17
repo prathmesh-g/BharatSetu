@@ -204,7 +204,7 @@ defmodule BharatAdapters.Solana.Client do
       {"SOLANA_RPC_URL",        rpc_url},
       {"SOLANA_RELAYER_KEYPAIR", String.replace(keypair, "~", System.get_env("HOME") || "")},
       {"SOLANA_WRAPPED_MINT",   wrapped_mint},
-      {"PATH",                  System.get_env("PATH") || "/usr/local/bin:/usr/bin:/bin"},
+      {"PATH", "/home/prathuu/.nvm/versions/node/v20.20.2/bin:" <> (System.get_env("PATH") || "/usr/local/bin:/usr/bin:/bin")},
     ]
   end
 

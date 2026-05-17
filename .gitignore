@@ -39,3 +39,5 @@ CLAUDE.md
 summary.docx
 graphify-out
 
+config/dev.exs
+_dev_logs/

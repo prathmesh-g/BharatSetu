@@ -26,7 +26,7 @@ defmodule BharatCore.Indexer.SepoliaIndexer do
   end
 
   @confirmation_depth Application.compile_env(:bharat_core, :confirmation_depth, 3)
-  @backfill_batch_size 9
+  @backfill_batch_size 1000
   @poll_interval_ms 3_000
   @chain "sepolia"
 
@@ -60,7 +60,7 @@ defmodule BharatCore.Indexer.SepoliaIndexer do
     case Contract.sepolia_block_number() do
       {:ok, latest} when latest > state.current_block ->
         from = state.current_block + 1
-        to   = min(latest, from + @backfill_batch_size - 1)
+        to   = min(latest, from + 1000 - 1)
 
         state =
           case Contract.get_sepolia_logs(from, to) do

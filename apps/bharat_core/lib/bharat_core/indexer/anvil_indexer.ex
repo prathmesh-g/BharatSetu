@@ -14,7 +14,7 @@ defmodule BharatCore.Indexer.AnvilIndexer do
   alias BharatAdapters.Blockchain.Contract
 
   @confirmation_depth Application.compile_env(:bharat_core, :confirmation_depth, 3)
-  @backfill_batch_size 9
+  @backfill_batch_size 1000
   @poll_interval_ms 3_000
 
   def start_link(_), do: GenServer.start_link(__MODULE__, [], name: __MODULE__)

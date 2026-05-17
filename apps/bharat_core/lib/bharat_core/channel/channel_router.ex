@@ -18,7 +18,7 @@ defmodule BharatCore.Channel.ChannelRouter do
       zone_a_chain_id: 80_002,         # Amoy (testnet)
       zone_b_cluster:  "devnet",
       config: %{
-        confirmation_depth_a: 12,
+        confirmation_depth_a: 3,
         confirmation_depth_b: 32,
         timeout_sec:          3600,
         identifier_strategy:  IdentifierStrategy.Default
