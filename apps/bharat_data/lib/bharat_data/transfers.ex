@@ -30,15 +30,17 @@ defmodule BharatData.Transfers do
         {:error, :not_found}
 
       transfer ->
-        attrs = Map.merge(%{state: new_state}, extra_attrs)
-
+        from_state = transfer.state
+	attrs = Map.merge(%{state: new_state}, extra_attrs)
         result =
           transfer
           |> Transfer.changeset(attrs)
           |> Repo.update()
 
         with {:ok, updated} <- result do
-          append_event(id, new_state, extra_attrs)
+          if from_state != new_state do 
+            append_event(id, from_state,  new_state, extra_attrs)
+	  end
           {:ok, updated}
         end
     end
@@ -162,12 +164,27 @@ defmodule BharatData.Transfers do
     if count > 0, do: {:ok, :reset}, else: {:error, :not_found}
   end
 
-  defp append_event(transfer_id, state, metadata) do
+  defp append_event(transfer_id, from_state, to_state, metadata) do
+
+    actor = cond do
+      Map.has_key?(metadata, :actor)      -> to_string(metadata.actor)
+      Map.has_key?(metadata, "actor")     -> metadata["actor"]
+      to_state in ["locked", "init"]      -> "user"
+      to_state in ["confirmed", "failed"] -> "indexer"
+      to_state in ["minted", "completed"] -> "relayer"
+      true                                -> "system"
+    end
+
     %TransferEvent{}
     |> TransferEvent.changeset(%{
-      transfer_id: transfer_id,
-      state: state,
-      metadata: metadata
+      transfer_id:   transfer_id,
+      from_state:    from_state,
+      to_state:      to_state,
+      actor:         actor,
+      chain_tx_hash: metadata[:lock_tx_hash] || metadata[:mint_tx_hash] || metadata["lock_tx_hash"] || metadata["mint_tx_hash"],
+      block_number:  metadata[:lock_block] || metadata["lock_block"],
+      state:         to_state,
+      metadata:      metadata
     })
     |> Repo.insert!()
   end

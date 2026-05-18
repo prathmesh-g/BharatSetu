@@ -34,7 +34,7 @@ defmodule BharatWeb.TransferController do
     direction = params["direction"] || "amoy_to_sepolia"
 
     # Compliance gate — required for CBDC flows, advisory for EVM flows
-    with :ok <- maybe_check_compliance(direction, wallet) do
+   with :ok <- maybe_check_compliance(direction, wallet, params["destination_wallet"]) do
       do_create(conn, wallet, direction, params)
     else
       {:error, reason} ->
@@ -84,10 +84,11 @@ defmodule BharatWeb.TransferController do
   @cbdc_directions ~w(cbdc_to_stablecoin stablecoin_to_cbdc token_to_instruction asset_to_instruction
                       eth_to_sol sol_to_eth eth_nft_to_sol sol_nft_to_eth)
 
-  defp maybe_check_compliance(direction, wallet) when direction in @cbdc_directions do
-    BharatCore.Compliance.Engine.check(wallet)
+  defp maybe_check_compliance(direction, wallet, dest_wallet \\ nil)
+  defp maybe_check_compliance(direction, wallet, dest_wallet) when direction in @cbdc_directions do
+    BharatCore.Compliance.Engine.check_transfer(wallet, dest_wallet || wallet)
   end
-  defp maybe_check_compliance(_direction, _wallet), do: :ok
+  defp maybe_check_compliance(_direction, _wallet, _dest_wallet), do: :ok
 
   def confirm_lock(conn, %{"id" => id, "tx_hash" => tx_hash} = params) do
     wallet = conn.assigns.wallet
