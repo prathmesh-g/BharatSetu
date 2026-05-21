@@ -10,6 +10,17 @@ defmodule BharatWeb.TransferController do
     json(conn, %{data: Enum.map(transfers, &serialize/1)})
   end
 
+  def audit_log(conn, %{"id" => id}) do
+  wallet = conn.assigns.wallet
+  case Transfers.get(id, wallet) do
+    nil ->
+      conn |> put_status(:not_found) |> json(%{error: "not found"})
+    _transfer ->
+      events = BharatData.TransferEvents.list_for_transfer(id)
+      json(conn, %{data: events})
+  end
+ end
+
   def show(conn, %{"id" => id}) do
     wallet = conn.assigns.wallet
 
@@ -37,8 +48,14 @@ defmodule BharatWeb.TransferController do
    with :ok <- maybe_check_compliance(direction, wallet, params["destination_wallet"]) do
       do_create(conn, wallet, direction, params)
     else
-      {:error, reason} ->
-        conn |> put_status(:forbidden) |> json(%{error: to_string(reason)})
+        {:error, :ofac_blocked} ->
+   	  # Log blocked attempt as per Section 10.1
+	   Logger.warning("[Compliance] Transfer blocked by OFAC screening wallet=#{wallet}")
+	   conn
+	   |> put_status(:forbidden)
+	   |> json(%{error: "ofac_blocked", message: "Wallet is on OFAC sanctions list. Transfer blocked."})
+	{:error, reason} ->
+	   conn |> put_status(:forbidden) |> json(%{error: to_string(reason)})
     end
   end
 
@@ -138,6 +155,8 @@ defmodule BharatWeb.TransferController do
         conn |> put_status(:not_found) |> json(%{error: "not found"})
 
       %{state: "failed", failure_reason: reason} when not is_nil(reason) ->
+	  # Re-screen on retry as per Section 10.1
+       with :ok <- BharatCore.Compliance.Engine.check(wallet) do
         if String.contains?(reason, "relay") do
           case Transfers.reset_for_retry(id) do
             {:ok, :reset} -> json(conn, %{data: %{id: id, state: "confirmed"}})
@@ -146,6 +165,13 @@ defmodule BharatWeb.TransferController do
         else
           conn |> put_status(:conflict) |> json(%{error: "only relay failures can be retried"})
         end
+
+      else
+        {:error, :ofac_blocked} ->
+          conn |> put_status(:forbidden) |> json(%{error: "ofac_blocked"})
+        {:error, reason} ->
+          conn |> put_status(:forbidden) |> json(%{error: to_string(reason)})
+      end
 
       _ ->
         conn |> put_status(:conflict) |> json(%{error: "transfer is not in a retryable state"})
