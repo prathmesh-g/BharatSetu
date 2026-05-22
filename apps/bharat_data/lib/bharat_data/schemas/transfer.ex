@@ -64,6 +64,7 @@ defmodule BharatData.Schemas.Transfer do
     field :rollback_reason,      :string
     field :rollback_tx_a,        :string
     field :rollback_tx_b,        :string
+    field :risk_score,           :integer, default: 0
 
     timestamps()
   end
@@ -77,7 +78,7 @@ defmodule BharatData.Schemas.Transfer do
     :solana_signature, :solana_mint_sig,
     :nft_metadata_uri, :nft_metadata_hash,
     :commit_tx_a, :commit_tx_b, :hub_state_hash,
-    :timeout_at, :rollback_reason, :rollback_tx_a, :rollback_tx_b
+    :timeout_at, :rollback_reason, :rollback_tx_a, :rollback_tx_b, :risk_score,
   ]
 
   def changeset(transfer, attrs) do

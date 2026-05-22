@@ -1,6 +1,8 @@
 defmodule BharatWeb.TransferController do
   use BharatWeb, :controller
 
+  require Logger
+
   alias BharatCore.Bridge.{TransferServer, TransferSupervisor}
   alias BharatData.{Transfers, Schemas.Transfer}
 
@@ -98,14 +100,12 @@ defmodule BharatWeb.TransferController do
     end
   end
 
-  @cbdc_directions ~w(cbdc_to_stablecoin stablecoin_to_cbdc token_to_instruction asset_to_instruction
-                      eth_to_sol sol_to_eth eth_nft_to_sol sol_nft_to_eth)
-
-  defp maybe_check_compliance(direction, wallet, dest_wallet \\ nil)
-  defp maybe_check_compliance(direction, wallet, dest_wallet) when direction in @cbdc_directions do
+  # Section 10.1 — screen every transfer regardless of direction
+  # per bharatsetu-production-v1.md §10.1: source + destination wallet
+  # must be screened before the transfer record is created.
+  defp maybe_check_compliance(_direction, wallet, dest_wallet) do
     BharatCore.Compliance.Engine.check_transfer(wallet, dest_wallet || wallet)
   end
-  defp maybe_check_compliance(_direction, _wallet, _dest_wallet), do: :ok
 
   def confirm_lock(conn, %{"id" => id, "tx_hash" => tx_hash} = params) do
     wallet = conn.assigns.wallet

@@ -8,6 +8,9 @@ defmodule BharatCore.Application do
       # Distributed cache (ETS-backed)
       {Cachex, name: :price_cache},
 
+      # Compliance wallet reputation cache (ETS-backed, Layer 2)
+      BharatCore.Compliance.WalletCache,
+
       # Phoenix PubSub — intra-node messaging
       {Phoenix.PubSub, name: BharatSetu.PubSub},
 
