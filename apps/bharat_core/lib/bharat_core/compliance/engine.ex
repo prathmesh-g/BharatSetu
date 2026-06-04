@@ -57,7 +57,8 @@ defmodule BharatCore.Compliance.Engine do
         result =
           with :ok <- check_ofac(normalized, opts),
                :ok <- check_kyc(wallet),
-               :ok <- maybe_check_structuring(checks, wallet) do
+               :ok <- maybe_check_structuring(checks, wallet),
+	       :ok <- maybe_check_cross_bridge(checks, wallet) do
             :ok
           end
 
@@ -194,6 +195,26 @@ defmodule BharatCore.Compliance.Engine do
       :ok
     end
   end  
+ 
+  defp maybe_check_cross_bridge(checks, wallet) do
+    if :structuring in checks or :chainabuse in checks do
+      case BharatCore.Compliance.CrossBridgeDetector.check(wallet) do
+        {:ok, %{flagged: true, risk_score: score, reasons: reasons}} ->
+          Logger.warning("[Compliance] CrossBridge flagged wallet=#{wallet} score=#{score} reasons=#{inspect(reasons)}")
+          if score >= 60 do
+            {:error, :cross_bridge_structuring}
+          else
+            # score 30-59 — log and allow, will feed into risk_score later
+            :ok
+          end
+        {:ok, %{flagged: false}} -> :ok
+        {:error, _}              -> :ok  # fail-open
+      end
+    else
+      :ok
+    end
+  end
+
 
   defp check_structuring(wallet) do
     case BharatCore.Compliance.StructuringDetector.check(wallet) do

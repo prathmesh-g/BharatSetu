@@ -34,6 +34,7 @@ defmodule BharatWeb.Router do
     get "/transfers",        TransferController, :index
     get "/transfers/:id",    TransferController, :show
     get "/transfers/:id/audit", TransferController, :audit_log
+    get "/wallets/:address/history", WalletController, :history
 
     get "/channels",                               ChannelController, :index
     get "/channels/:id",                           ChannelController, :show
